@@ -10,4 +10,4 @@ git clone https://github.com/Monsieur-Chat/DofuShame \
 & python app.py
 ```
 
-Ensuite dans votre navigateur vous pouvez tapez http://127.0.0.1:5000 et hop vous avez un super scoreboard chez vous
+Ensuite dans votre navigateur vous pouvez taper http://127.0.0.1:5000 et hop vous avez un super scoreboard chez vous
