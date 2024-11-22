@@ -1,0 +1,20 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+h1 {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #1f1f1f;
+}
+
+.table-dark {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-color: #333333;
+}
