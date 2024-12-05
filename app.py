@@ -18,16 +18,17 @@ db = SQLAlchemy(app)
 
 # Define the Team model
 class Team(db.Model):
-    __tablename__ = "teams"  # Optional table name
+    __tablename__ = "teams"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
-    # Relationship to Player
-    players = db.relationship("Player", backref="team", lazy=True)
+    players = db.relationship(
+        "Player", backref="team", lazy=True, cascade="all, delete"
+    )
 
 
 # Define the Player model
 class Player(db.Model):
-    __tablename__ = "players"  # Optional table name
+    __tablename__ = "players"
     id = db.Column(db.Integer, primary_key=True)
     pseudo = db.Column(db.String(100), unique=True, nullable=False)
     chall_fail_count = db.Column(db.Integer, default=0, nullable=False)
@@ -90,6 +91,17 @@ def add_player():
         return redirect(url_for("scoreboard"))
     else:
         return render_template("add_player.html")
+
+
+@app.route("/delete_player", methods=["POST"])
+def delete_player():
+    pseudo = request.form.get("pseudo")
+
+    player = Player.query.filter_by(pseudo=pseudo).first()
+    if player:
+        db.session.delete(player)
+        db.session.commit()
+    return redirect(url_for("scoreboard"))
 
 
 if __name__ == "__main__":

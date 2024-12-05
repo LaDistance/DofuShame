@@ -10,11 +10,9 @@
     >
     <link href="{{ url_for('static', filename='css/dark-theme.css') }}" rel="stylesheet">
 </head>
-<!-- Replace existing content inside the body -->
 <body>
     <div class="container mt-5">
         <h1 class="text-center text-light">Classement de la honte</h1>
-        <!-- Team Tabs -->
         <ul class="nav nav-tabs" id="teamTabs" role="tablist">
             {% for team in teams %}
             <li class="nav-item" role="presentation">
@@ -24,7 +22,6 @@
             </li>
             {% endfor %}
         </ul>
-        <!-- Tab Content -->
         <div class="tab-content" id="teamTabsContent">
             {% for team in teams %}
             <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="team-{{ team.id }}"
@@ -58,6 +55,10 @@
                                     <input type="hidden" name="action" value="decrement">
                                     <button type="submit" class="btn btn-danger btn-sm">-</button>
                                 </form>
+                                <form method="POST" action="{{ url_for('delete_player') }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete {{ player.pseudo }}?');">
+                                    <input type="hidden" name="pseudo" value="{{ player.pseudo }}">
+                                    <button type="submit" class="btn btn-warning btn-sm">Delete</button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
@@ -68,7 +69,6 @@
         </div>
         <a href="{{ url_for('add_player') }}" class="btn btn-primary mt-3">Ajouter un joueur</a>
     </div>
-    <!-- Include Bootstrap JS -->
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
     ></script>
