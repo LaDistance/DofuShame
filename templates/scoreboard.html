@@ -2,30 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Challenge Raté Scoreboard</title>
+    <!-- Bootstrap CSS -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
+    <!-- Custom CSS (Dark Theme) -->
     <link href="{{ url_for('static', filename='css/dark-theme.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
+        <!-- Page Title -->
         <h1 class="text-center text-light">Classement de la honte</h1>
+
+        <!-- Set Active Team ID -->
+        {% set active_team_id = active_team_id | int if active_team_id else None %}
+
+        <!-- Team Tabs -->
         <ul class="nav nav-tabs" id="teamTabs" role="tablist">
             {% for team in teams %}
             <li class="nav-item" role="presentation">
-                <button class="nav-link {% if loop.first %}active{% endif %}" id="tab-{{ team.id }}"
-                        data-bs-toggle="tab" data-bs-target="#team-{{ team.id }}" type="button" role="tab"
-                        aria-controls="team-{{ team.id }}" aria-selected="true">{{ team.name }}</button>
+                <button class="nav-link {% if active_team_id == team.id %}active{% elif not active_team_id and loop.first %}active{% endif %}"
+                        id="tab-{{ team.id }}"
+                        data-bs-toggle="tab"
+                        data-bs-target="#team-{{ team.id }}"
+                        type="button" role="tab"
+                        aria-controls="team-{{ team.id }}"
+                        aria-selected="{{ 'true' if active_team_id == team.id or (not active_team_id and loop.first) else 'false' }}">
+                    {{ team.name }}
+                </button>
             </li>
             {% endfor %}
         </ul>
+
+        <!-- Tab Content -->
         <div class="tab-content" id="teamTabsContent">
             {% for team in teams %}
-            <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="team-{{ team.id }}"
-                 role="tabpanel" aria-labelledby="tab-{{ team.id }}">
+            <div class="tab-pane fade {% if active_team_id == team.id %}show active{% elif not active_team_id and loop.first %}show active{% endif %}"
+                 id="team-{{ team.id }}"
+                 role="tabpanel"
+                 aria-labelledby="tab-{{ team.id }}">
+                <!-- Players Table -->
                 <table class="table table-dark table-hover mt-4">
                     <thead>
                         <tr>
@@ -45,19 +63,25 @@
                             </td>
                             <td>{{ player.chall_fail_count }}</td>
                             <td>
+                                <!-- Increment Button Form -->
                                 <form method="POST" action="{{ url_for('update_score') }}" style="display: inline;">
                                     <input type="hidden" name="pseudo" value="{{ player.pseudo }}">
                                     <input type="hidden" name="action" value="increment">
+                                    <input type="hidden" name="team_id" value="{{ team.id }}">
                                     <button type="submit" class="btn btn-success btn-sm">+</button>
                                 </form>
+                                <!-- Decrement Button Form -->
                                 <form method="POST" action="{{ url_for('update_score') }}" style="display: inline;">
                                     <input type="hidden" name="pseudo" value="{{ player.pseudo }}">
                                     <input type="hidden" name="action" value="decrement">
+                                    <input type="hidden" name="team_id" value="{{ team.id }}">
                                     <button type="submit" class="btn btn-danger btn-sm">-</button>
                                 </form>
-                                <form method="POST" action="{{ url_for('delete_player') }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete {{ player.pseudo }}?');">
+                                <!-- Delete Button Form -->
+                                <form method="POST" action="{{ url_for('delete_player') }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ player.pseudo }} ?');">
                                     <input type="hidden" name="pseudo" value="{{ player.pseudo }}">
-                                    <button type="submit" class="btn btn-warning btn-sm">Delete</button>
+                                    <input type="hidden" name="team_id" value="{{ team.id }}">
+                                    <button type="submit" class="btn btn-warning btn-sm">Supprimer</button>
                                 </form>
                             </td>
                         </tr>
@@ -67,11 +91,14 @@
             </div>
             {% endfor %}
         </div>
-        <a href="{{ url_for('add_player') }}" class="btn btn-primary mt-3">Ajouter un joueur</a>
+
+        <!-- Add Player Button -->
+        <a href="{{ url_for('add_player', team_id=active_team_id) }}" class="btn btn-primary mt-3">Ajouter un joueur</a>
     </div>
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
     ></script>
 </body>
-
 </html>

@@ -43,13 +43,17 @@ with app.app_context():
 @app.route("/")
 def scoreboard():
     teams = Team.query.all()
-    return render_template("scoreboard.html", teams=teams)
+    active_team_id = request.args.get("active_team_id", default=None, type=int)
+    return render_template(
+        "scoreboard.html", teams=teams, active_team_id=active_team_id
+    )
 
 
 @app.route("/update", methods=["POST"])
 def update_score():
     pseudo = request.form.get("pseudo")
     action = request.form.get("action")
+    team_id = request.form.get("team_id")
 
     player = Player.query.filter_by(pseudo=pseudo).first()
     if player:
@@ -58,7 +62,7 @@ def update_score():
         elif action == "decrement" and player.chall_fail_count > 0:
             player.chall_fail_count -= 1
         db.session.commit()
-    return redirect(url_for("scoreboard"))
+    return redirect(url_for("scoreboard", active_team_id=team_id))
 
 
 @app.route("/add_player", methods=["GET", "POST"])
@@ -88,20 +92,26 @@ def add_player():
             db.session.rollback()
             # Handle any other integrity errors
             return redirect(url_for("scoreboard"))
-        return redirect(url_for("scoreboard"))
+
+        # After adding the player, redirect back to the scoreboard with the team ID
+        team = Team.query.filter_by(name=team_name).first()
+        return redirect(url_for("scoreboard", active_team_id=team.id))
     else:
-        return render_template("add_player.html")
+        # Get team_id from query parameters
+        team_id = request.args.get("team_id", type=int)
+        return render_template("add_player.html", team_id=team_id)
 
 
 @app.route("/delete_player", methods=["POST"])
 def delete_player():
     pseudo = request.form.get("pseudo")
+    team_id = request.form.get("team_id")
 
     player = Player.query.filter_by(pseudo=pseudo).first()
     if player:
         db.session.delete(player)
         db.session.commit()
-    return redirect(url_for("scoreboard"))
+    return redirect(url_for("scoreboard", active_team_id=team_id))
 
 
 if __name__ == "__main__":
